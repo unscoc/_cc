@@ -1,0 +1,85 @@
+# dune build @fmt --auto-promote
+# OCAMLPARAM: unset
+# Shared cache: disabled
+# Shared cache location: /home/wo4mei3/.cache/dune/db
+# Workspace root: /home/wo4mei3/mic
+# Auto-detected concurrency: 12
+# Dune context:
+#  { name = "default"
+#  ; kind = "default"
+#  ; profile = Dev
+#  ; merlin = true
+#  ; fdo_target_exe = None
+#  ; build_dir = In_build_dir "default"
+#  ; installed_env =
+#      map
+#        { "INSIDE_DUNE" : "/home/wo4mei3/mic/_build/default"
+#        ; "OCAML_COLOR" : "always"
+#        ; "OPAMCOLOR" : "always"
+#        }
+#  ; instrument_with = []
+#  }
+$ /home/wo4mei3/.opam/5.1.0/bin/ocamlc.opt -config > /tmp/dune_0946a2_output
+$ (cd _build/default && /home/wo4mei3/.opam/5.1.0/bin/ocamlformat --impl lib/ast.ml) > _build/default/lib/.formatted/ast.ml
+$ (cd _build/default && /home/wo4mei3/.opam/5.1.0/bin/ocamlformat --impl bin/main.ml) > _build/default/bin/.formatted/main.ml
+$ (cd _build/default && /home/wo4mei3/.opam/5.1.0/bin/ocamlformat --impl lib/env.ml) > _build/default/lib/.formatted/env.ml
+$ /usr/bin/git --no-pager diff --no-index --color=always -u _build/default/bin/main.ml _build/default/bin/.formatted/main.ml
+> diff --git a/_build/default/bin/main.ml b/_build/default/bin/.formatted/main.ml
+> index f253497..85bea9c 100644
+> --- a/_build/default/bin/main.ml
+> +++ b/_build/default/bin/.formatted/main.ml
+> @@ -10,4 +10,6 @@ let () =
+>      let inchan = open_in fname in
+>      let filebuf = Lexing.from_channel inchan in
+>      ignore (Mic.Parser.translation_unit Mic.Lexer.token filebuf);
+> -    print_endline (Mic.Ast.show_programi (List.rev (List.mapi (fun i x ->(i,x))(List.rev !Mic.Env.program))))
+> +    print_endline
+> +      (Mic.Ast.show_programi
+> +         (List.rev (List.mapi (fun i x -> (i, x)) (List.rev !Mic.Env.program))))
+[1]
+$ /usr/bin/git --no-pager diff --no-index --color=always -u _build/default/lib/env.ml _build/default/lib/.formatted/env.ml
+> diff --git a/_build/default/lib/env.ml b/_build/default/lib/.formatted/env.ml
+> index 8005a45..1aaca00 100644
+> --- a/_build/default/lib/env.ml
+> +++ b/_build/default/lib/.formatted/env.ml
+> @@ -9,12 +9,13 @@ let raise exn =
+>  
+>  let program : program ref = ref []
+>  let spr fmt s = Printf.sprintf fmt s
+> -
+>  let global_scope : id list ref = ref []
+>  let curr_scope : id list ref = ref []
+>  let stack : id list list ref = ref []
+>  
+> -let map_to_program l = List.rev (List.map (fun n -> (n,List.nth (List.rev !program) n)) l)
+> +let map_to_program l =
+> +  List.rev (List.map (fun n -> (n, List.nth (List.rev !program) n)) l)
+> +
+>  let get_scope () = map_to_program !curr_scope
+>  let get_stack () = map_to_program (List.flatten (!curr_scope :: !stack))
+>  
+> @@ -33,7 +34,9 @@ let leave_scope () =
+>    stack := List.tl !stack
+>  
+>  let update_program id def =
+> -  program := List.rev (List.mapi (fun i x -> if i = id then def else x) (List.rev !program))
+> +  program :=
+> +    List.rev
+> +      (List.mapi (fun i x -> if i = id then def else x) (List.rev !program))
+>  
+>  let is_structdecl name = function
+>    | StructDecl n when n = name -> true
+> @@ -52,9 +55,9 @@ let is_uniondef name = function
+>    | _ -> false
+>  
+>  let rec find_item p = function
+> -| (id,item)::_ when p item -> Some id
+> -| _::xs -> find_item p xs
+> -| [] -> None
+> +  | (id, item) :: _ when p item -> Some id
+> +  | _ :: xs -> find_item p xs
+> +  | [] -> None
+>  
+>  let lookup_structdecl name l = find_item (is_structdecl name) l
+>  let lookup_uniondecl name l = find_item (is_uniondecl name) l
+[1]

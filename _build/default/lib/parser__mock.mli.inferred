@@ -1,0 +1,180 @@
+type token =
+    XOR_EQ
+  | WHILE
+  | VOLATILE
+  | UNION
+  | TYPE_ID of string
+  | TYPEDEF
+  | TVOID
+  | TUNSIGNED
+  | TSIGNED
+  | TSHORT
+  | TLONG
+  | TINT
+  | TFLOAT
+  | TDOUBLE
+  | TCHAR
+  | SWITCH
+  | SUB_EQ
+  | STRUCT
+  | STR of string
+  | STATIC
+  | STAR
+  | SIZEOF
+  | SEMI
+  | RSHIFT_EQ
+  | RSHIFT
+  | RPAREN
+  | RETURN
+  | REGISTER
+  | RBRACKET
+  | RBRACE
+  | QUESTION
+  | PLUS
+  | OR_EQ
+  | OROR
+  | OR
+  | NOT
+  | NORETURN
+  | NE
+  | MUL_EQ
+  | MOD_EQ
+  | MOD
+  | MINUS
+  | LT
+  | LSHIFT_EQ
+  | LSHIFT
+  | LPAREN
+  | LE
+  | LBRACKET
+  | LBRACE
+  | INT of string
+  | INLINE
+  | INC
+  | IF
+  | ID of string
+  | HAT
+  | GT
+  | GOTO
+  | GE
+  | FOR
+  | FLOAT of string
+  | EXTERN
+  | EQEQ
+  | EQ
+  | EOF
+  | ENUM
+  | ELSE
+  | ELLIPSIS
+  | DOT
+  | DO
+  | DIV_EQ
+  | DIV
+  | DEFAULT
+  | DEC
+  | CONTINUE
+  | CONST
+  | COMMA
+  | COLON
+  | CHAR of string
+  | CASE
+  | BREAK
+  | BANG
+  | AUTO
+  | ARROW
+  | AND_EQ
+  | ANDAND
+  | AND
+  | ADD_EQ
+type declarator =
+    DeclPtr of declarator
+  | DeclIdent of string
+  | DeclArr of declarator * Ast.expr
+  | DeclFun of declarator * Ast.decl list
+val make_decl : Ast.ty -> declarator -> string * Ast.ty
+val make_decls : Ast.ty -> declarator list -> (string * Ast.ty) list
+val make_decls_with_init :
+  Ast.ty -> (declarator * Ast.init option) list -> int list
+val conv_ident : string option -> string
+val menhir_begin_marker : int
+val xv_unary_expr : Ast.expr
+val xv_type_spec : Ast.ds
+val xv_type_qual : Ast.ds
+val xv_type_name : Ast.ty
+val xv_translation_unit : int list
+val xv_struct_or_union_spec : Ast.ds
+val xv_struct_declarator_list : declarator list
+val xv_struct_declarator : declarator
+val xv_struct_decl : Ast.decl list
+val xv_storage_class_spec : Ast.ds
+val xv_stmt : Ast.stmt
+val xv_spec_qual_list_sub : Ast.ds list
+val xv_spec_qual_list : Ast.ds list
+val xv_shift_expr : Ast.expr
+val xv_selection_stmt_2 : Ast.stmt
+val xv_selection_stmt_1 : Ast.stmt
+val xv_relational_expr : Ast.expr
+val xv_primary_expr : Ast.expr
+val xv_postfix_expr : Ast.expr
+val xv_pointer : unit
+val xv_parameter_type_list : Ast.decl list
+val xv_parameter_list : Ast.decl list
+val xv_parameter_decl : Ast.decl list
+val xv_option_struct_declarator_list_ : declarator list option
+val xv_option_ident_ : string option
+val xv_option_expr_ : Ast.expr option
+val xv_option_argument_expr_list_ : Ast.expr list option
+val xv_option_abstract_declarator_ : declarator option
+val xv_option___anonymous_0_ : unit option
+val xv_option_COMMA_ : unit option
+val xv_multiplicative_expr : Ast.expr
+val xv_logical_or_expr : Ast.expr
+val xv_logical_and_expr : Ast.expr
+val xv_list_type_qual_ : Ast.ds list
+val xv_list_struct_decl_ : Ast.decl list list
+val xv_list_item_ : Ast.stmt list
+val xv_list_external_decl_ : int list list
+val xv_list_case_or_default_ : Ast.stmt list
+val xv_leave_scope : unit
+val xv_labeled_stmt : Ast.stmt
+val xv_jump_stmt : Ast.stmt
+val xv_iteration_stmt : Ast.stmt
+val xv_item : Ast.stmt
+val xv_init_list : (Ast.desig * Ast.init) list
+val xv_init_declarator_list : (declarator * Ast.init option) list
+val xv_init_declarator : declarator * Ast.init option
+val xv_init : Ast.init
+val xv_inclusive_or_expr : Ast.expr
+val xv_ident : string
+val xv_function_spec : Ast.ds
+val xv_function_def : Ast.item
+val xv_external_decl : int list
+val xv_expr : Ast.expr
+val xv_exclusive_or_expr : Ast.expr
+val xv_equality_expr : Ast.expr
+val xv_enum_spec : unit
+val xv_enum_list : unit
+val xv_enum_const : unit
+val xv_enum : unit
+val xv_enter_scope : unit
+val xv_direct_declarator : declarator
+val xv_direct_abstract_declarator : declarator
+val xv_designator_list : Ast.desig
+val xv_desig : Ast.desig
+val xv_declarator : declarator
+val xv_decl_specs_sub : Ast.ds list
+val xv_decl_specs : Ast.ty
+val xv_decl_spec : Ast.ds list
+val xv_decl : int list
+val xv_constant_expr : Ast.expr
+val xv_conditional_expr : Ast.expr
+val xv_compound_stmt : Ast.stmt
+val xv_cast_expr : Ast.expr
+val xv_case_or_default : Ast.stmt
+val xv_assignment_expr : Ast.expr
+val xv_argument_expr_list : Ast.expr list
+val xv_and_expr : Ast.expr
+val xv_additive_expr : Ast.expr
+val xv_abstract_declarator : declarator
+val xv___anonymous_0 : unit
+val menhir_end_marker : int

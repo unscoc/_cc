@@ -1,0 +1,33 @@
+
+** Conflict (shift/reduce) in state 286.
+** Tokens involved: STAR LPAREN ID
+** The following explanations concentrate on token STAR.
+** This state is reached from translation_unit after reading:
+
+decl_specs
+
+** The derivations that appear below have the following common factor:
+** (The question mark symbol (?) represents the spot where the derivations begin to differ.)
+
+translation_unit 
+list(external_decl) EOF 
+external_decl list(external_decl) 
+(?)
+
+** In state 286, looking ahead at STAR, reducing production
+** enter_scope ->
+** is permitted because of the following sub-derivation:
+
+function_def 
+decl_specs enter_scope declarator LBRACE list(item) RBRACE leave_scope // lookahead token appears because declarator can begin with STAR
+           . 
+
+** In state 286, looking ahead at STAR, shifting is permitted
+** because of the following sub-derivation:
+
+decl 
+decl_specs init_declarator_list SEMI 
+           init_declarator 
+           declarator 
+           pointer declarator 
+           . STAR list(type_qual) 
