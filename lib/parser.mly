@@ -1,40 +1,35 @@
 %{
-    open Ast 
-    open Env 
+open Ast 
+open Env 
 
-    type declarator =
-    | DeclPtr of declarator
-    | DeclIdent of string
-    | DeclArr of declarator * expr
-    | DeclFun of declarator * decl list
+type declarator =
+| DeclPtr of declarator
+| DeclIdent of string
+| DeclArr of declarator * expr
+| DeclFun of declarator * decl list
 
-    let make_decl ty d = 
-      let name = ref "" in
-      let rec aux ty = function
-      | DeclPtr d -> aux (TPtr ty) d 
-      | DeclIdent n -> name := n; ty 
-      | DeclArr(d,sz) -> aux (TArr(ty,sz)) d 
-      | DeclFun(d,dl) -> aux (TFun(ty,dl)) d
-      in (!name, aux ty d)
+let make_decl ty d = 
+  let name = ref "" in
+  let rec aux ty = function
+  | DeclPtr d -> aux (TPtr ty) d 
+  | DeclIdent n -> name := n; ty 
+  | DeclArr(d,sz) -> aux (TArr(ty,sz)) d 
+  | DeclFun(d,dl) -> aux (TFun(ty,dl)) d
+  in (!name, aux ty d)
 
-    let make_decls ty dl =
-      List.map (fun d -> make_decl ty d) dl
+let make_decls ty dl =
+  List.map (fun d -> make_decl ty d) dl
 
-    let make_decls_with_init ty init_decl_list =
-      List.map 
-      (
-        function 
-        | (d,Some init) -> push_def (VarDef(make_decl ty d,init))
-        | (d,None) -> push_def (Decl (make_decl ty d))
-      ) init_decl_list
+let make_decls_with_init ty init_decl_list =
+  List.map (function 
+    | (d,Some init) -> push_def (VarDef(make_decl ty d,init))
+    | (d,None) -> push_def (Decl (make_decl ty d))
+  ) init_decl_list
 
-    let conv_ident = function
-    | Some s -> s 
-    | None -> ""
-
-
+let conv_ident = function
+  | Some s -> s 
+  | None -> ""
 %}
-
 %token LPAREN RPAREN LBRACKET RBRACKET LBRACE RBRACE DOT COMMA
 %token AND STAR PLUS MINUS NOT BANG DIV MOD LT GT HAT OR 
 %token COLON QUESTION SEMI EQ INLINE NORETURN
@@ -58,8 +53,6 @@
 
 %type<id list> translation_unit
 %start translation_unit
-
-
 %%
 
 translation_unit:
@@ -77,28 +70,18 @@ primary_expr:
 | INT { EConst (VInt $1) }
 | FLOAT { EConst (VFloat $1) }
 | STR { EConst ( VStr $1) }
-| LPAREN expr RPAREN
-   { $2 }
+| LPAREN expr RPAREN { $2 }
 
 postfix_expr:
 | primary_expr { $1 }
 | postfix_expr LBRACKET expr RBRACKET { EPostfix($1,PIdx $3) }
-| postfix_expr LPAREN argument_expr_list? RPAREN
-  { 
-    match $3 with
-    | Some l -> EPostfix( $1,PCall l)
-    | None -> EPostfix( $1,PCall [])
-  }
+| postfix_expr LPAREN argument_expr_list? RPAREN  { match $3 with
+                                                    | Some l -> EPostfix( $1,PCall l)
+                                                    | None -> EPostfix( $1,PCall []) }
 | postfix_expr DOT ident { EPostfix( $1,PDot $3) }
 | postfix_expr ARROW ident { EPostfix( $1,PArrow $3) }
-| postfix_expr INC 
-  { 
-  EPostfix($1,PInc)
-  }
-| postfix_expr DEC
-  { 
-  EPostfix($1,PDec)
-  }
+| postfix_expr INC { EPostfix($1,PInc) }
+| postfix_expr DEC { EPostfix($1,PDec) }
 | LPAREN type_name RPAREN LBRACE init_list COMMA? RBRACE { ECompoundLit( $2,IVect $5) }
 
 argument_expr_list:
@@ -194,47 +177,33 @@ expr:
 | expr COMMA assignment_expr { EBinary( Comma,$1,$3) }
 
 constant_expr:
-| conditional_expr
-  { $1 } 
+| conditional_expr { $1 } 
 
 
 decl:
 | decl_specs SEMI { [] }
-| decl_specs init_declarator_list SEMI 
-  {
-    make_decls_with_init $1 $2
-  }
+| decl_specs init_declarator_list SEMI { make_decls_with_init $1 $2 }
 
 decl_spec:
 | storage_class_spec {  [$1] }
 | type_qual { [$1] }
 | function_spec { [$1] }
-| type_spec 
-  { 
-    [$1]
-  }
+| type_spec { [$1] }
 
 decl_specs:
-| decl_specs_sub
-  {
-    TDeclSpec $1
-  }
+| decl_specs_sub { TDeclSpec $1 }
 
 decl_specs_sub:
 | decl_spec { $1 }
-| decl_specs_sub decl_spec
-  {  $1@ $2 }
+| decl_specs_sub decl_spec {  $1 @ $2 }
 
 init_declarator_list:
-| init_declarator
-  { [$1] }
-| init_declarator_list COMMA init_declarator
-  { $1@[$3] }
+| init_declarator { [$1] }
+| init_declarator_list COMMA init_declarator { $1 @ [$3] }
 
 init_declarator:
 | declarator { ($1,None) }
-| declarator EQ init
-  { ($1,Some $3) }
+| declarator EQ init { ($1,Some $3) }
 
 storage_class_spec:
 | TYPEDEF { ScsTypedef }
@@ -253,27 +222,17 @@ type_spec:
 | TDOUBLE { TsDouble }
 | TSIGNED { TsSigned }
 | TUNSIGNED { TsUnsigned  }
-| struct_or_union_spec { $1
-  }
+| struct_or_union_spec { $1 }
 | enum_spec { TsInt }
 | TYPE_ID { TsInt }
 
 spec_qual_list:
-| spec_qual_list_sub
-  {
-    $1
-  }
+| spec_qual_list_sub { $1 }
 
 spec_qual_list_sub:
-| type_spec
-  {
-    $1::[]
-  }
-| type_spec spec_qual_list_sub
-  { 
-    $1::$2
-  }
-| type_qual spec_qual_list_sub {  $1::$2 }
+| type_spec { $1::[] }
+| type_spec spec_qual_list_sub { $1::$2 }
+| type_qual spec_qual_list_sub { $1::$2 }
 
 type_qual:
 | CONST { TqConst }
@@ -291,12 +250,9 @@ struct_or_union_spec:
 | UNION ident { make_uniondecl $2 }
 
 struct_decl:
-| spec_qual_list struct_declarator_list? SEMI
-  {
-    match $2 with
-    | Some dl -> make_decls (TDeclSpec $1) dl
-    | None -> failwith "not impl"
-  }
+| spec_qual_list struct_declarator_list? SEMI { match $2 with
+                                                | Some dl -> make_decls (TDeclSpec $1) dl
+                                                | None -> failwith "not impl" }
 struct_declarator_list:
 | struct_declarator { [$1] }
 | struct_declarator_list COMMA struct_declarator { $1@[$3] }
@@ -306,22 +262,18 @@ struct_declarator:
 
 enum_spec:
 | ENUM ident? LBRACE enum_list COMMA? RBRACE
-| ENUM ident
-    {  }
+| ENUM ident { }
 
 enum_list:
 | enum
-| enum_list COMMA enum
-    {}
+| enum_list COMMA enum { }
 
 enum:
 | enum_const
-| enum_const EQ constant_expr
-    {  }
+| enum_const EQ constant_expr { }
 
 enum_const:
-| ident
-    {  }
+| ident { }
 
 declarator:
 | pointer declarator { DeclPtr $2 }
@@ -335,32 +287,21 @@ direct_declarator:
 | direct_declarator LPAREN parameter_type_list RPAREN { DeclFun($1,$3) }
 
 pointer:
-| STAR list(type_qual)
-  {  }
+| STAR list(type_qual) { }
 
 parameter_type_list:
-| 
-  { [] }
-| parameter_list option(COMMA ELLIPSIS {})
-  { $1 }
+| { [] }
+| parameter_list option(COMMA ELLIPSIS {}) { $1 }
 
 parameter_list:
-| parameter_decl
-  { $1 }
-| parameter_list COMMA parameter_decl
-  { $1@$3 }
+| parameter_decl { $1 }
+| parameter_list COMMA parameter_decl { $1 @ $3 }
 
 parameter_decl:
-| decl_specs declarator
-  { 
-    [make_decl $1 $2]
-  }
-| decl_specs abstract_declarator?
-  {
-    match $2 with
-    | Some d -> [make_decl $1 d]
-    | None -> [make_decl $1 (DeclIdent "")]
-  }
+| decl_specs declarator { [make_decl $1 $2] }
+| decl_specs abstract_declarator? { match $2 with
+                                    | Some d -> [make_decl $1 d]
+                                    | None -> [make_decl $1 (DeclIdent "")] }
 
 abstract_declarator:
 | pointer { DeclPtr(DeclIdent "") }
@@ -378,8 +319,7 @@ direct_abstract_declarator:
 
 type_name:
 | spec_qual_list { TDeclSpec $1 }
-| spec_qual_list abstract_declarator
-  { TDeclSpec [] }
+| spec_qual_list abstract_declarator { TDeclSpec [] }
 
 init:
 | assignment_expr { IScal $1 }
@@ -392,8 +332,7 @@ init_list:
 | init_list COMMA desig init { $1@[($3,$4)] }
 
 desig:
-| designator_list  EQ
-  { $1 }
+| designator_list EQ { $1 }
 
 designator_list:
 | LBRACKET constant_expr RBRACKET { DIdx($2,Dnone) }
@@ -401,15 +340,9 @@ designator_list:
 | LBRACKET constant_expr RBRACKET designator_list {DIdx($2, $4) } 
 | DOT ident designator_list { DField($2, $3) }
 
-enter_scope:
-  {
-    enter_scope ()
-  }
+enter_scope: { enter_scope () }
 
-leave_scope:
-  {
-    leave_scope ()
-  }
+leave_scope: { leave_scope () }
 
 item:
 | decl { SDef($1) }
@@ -425,10 +358,7 @@ stmt:
 | jump_stmt { $1 }
 
 labeled_stmt:
-| ident COLON item
-  { 
-    SLabel($1,$3)
-  }
+| ident COLON item { SLabel($1,$3) }
 
 case_or_default:
 | CASE conditional_expr COLON list(item) { SCase ($2, $4) }
@@ -436,10 +366,7 @@ case_or_default:
 
 
 compound_stmt:
-| enter_scope LBRACE list(item) RBRACE leave_scope
-  {
-    SStmts($3)
-  }
+| enter_scope LBRACE list(item) RBRACE leave_scope { SStmts($3) }
 
 selection_stmt_1:
 | IF LPAREN expr RPAREN stmt    %prec NO_ELSE { SIfElse($3,$5,SStmts []) }
@@ -447,44 +374,24 @@ selection_stmt_1:
 
 selection_stmt_2:
 | SWITCH LPAREN expr RPAREN enter_scope LBRACE list(case_or_default) RBRACE leave_scope
-  { 
-    SSwitch($3,$7)
-  }
+  { SSwitch($3,$7) }
 
 
 
 iteration_stmt:
-| WHILE LPAREN expr RPAREN stmt
-  { 
-    SWhile($3,$5)
-  }
-| DO stmt WHILE LPAREN expr RPAREN
-  { 
-    SDoWhile($2,$5)
-  }
-| FOR LPAREN expr? SEMI expr? SEMI expr? RPAREN stmt
-  { 
-    SFor($3,$5,$7,$9)
-  }
+| WHILE LPAREN expr RPAREN stmt { SWhile($3,$5) }
+| DO stmt WHILE LPAREN expr RPAREN { SDoWhile($2,$5) }
+| FOR LPAREN expr? SEMI expr? SEMI expr? RPAREN stmt { SFor($3,$5,$7,$9) }
 
 jump_stmt:
-| GOTO ident SEMI
-  { 
-    SGoto $2
-  }
+| GOTO ident SEMI { SGoto $2 }
 | CONTINUE SEMI { SContinue }
 | BREAK SEMI { SBreak }
 | RETURN expr? SEMI { SReturn $2 }
 
 external_decl:
-| function_def
-  { [push_def $1] }
-| decl
-  { $1 }
+| function_def { [push_def $1] }
+| decl { $1 }
 
 function_def:
-| decl_specs declarator compound_stmt
-  {
-    FunctionDef(make_decl $1 $2,$3)
-  }
-%%
+| decl_specs declarator compound_stmt { FunctionDef(make_decl $1 $2,$3) }
