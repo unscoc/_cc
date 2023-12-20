@@ -1,7 +1,7 @@
 (lang dune 3.7)
 (using menhir 2.1)
 
-(name mic)
+(name uscoc)
 
 (generate_opam_files true)
 
@@ -17,7 +17,7 @@
 (documentation https://url/to/documentation)
 
 (package
- (name mic)
+ (name uscoc)
  (synopsis "A short synopsis")
  (description "A longer description")
  (depends ocaml dune)

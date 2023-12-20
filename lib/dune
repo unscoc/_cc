@@ -6,4 +6,4 @@
 (library
  (preprocess
   (pps ppx_deriving.show))
- (name mic))
+ (name uscoc))

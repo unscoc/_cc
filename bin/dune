@@ -1,4 +1,4 @@
 (executable
- (public_name mic)
+ (public_name uscoc)
  (name main)
- (libraries mic))
+ (libraries uscoc))

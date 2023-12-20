@@ -19,19 +19,19 @@ let () =
   let opts,files = try
     argparse ["-json"]
   with _ ->
-    Format.printf "Usage: ./mic [-json] [filename]\n";
+    Format.printf "Usage: ./_cc [-json] [filename]\n";
     exit (-1)
   in
   files |> List.iter (fun fname ->
     let inchan = open_in fname in
     let filebuf = Lexing.from_channel inchan in
-    ignore (Mic.Parser.translation_unit Mic.Lexer.token filebuf);
+    ignore (Uscoc.Parser.translation_unit Uscoc.Lexer.token filebuf);
     if List.mem "-json" opts then
       print_endline
-        (Mic.Json.programi
-            (List.mapi (fun i x -> (i, x)) (List.rev !Mic.Env.program)))
+        (Uscoc.Json.programi
+            (List.mapi (fun i x -> (i, x)) (List.rev !Uscoc.Env.program)))
     else
       print_endline
-        (Mic.Ast.show_programi
-            (List.rev (List.mapi (fun i x -> (i, x)) (List.rev !Mic.Env.program))))
+        (Uscoc.Ast.show_programi
+            (List.rev (List.mapi (fun i x -> (i, x)) (List.rev !Uscoc.Env.program))))
   )
