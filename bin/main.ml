@@ -16,7 +16,7 @@ let argparse (options:string list) =
   in
   parse argv
 
-let () =
+let _ =
   let opts,files = try
     argparse ["-json"]
   with _ ->
