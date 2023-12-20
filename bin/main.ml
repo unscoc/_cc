@@ -1,15 +1,37 @@
-let () = print_endline "Hello, World!"
-
+let argparse (options:string list) =
+  let argv:string list = Array.to_list(Sys.argv) in
+  let argv = match argv with [] -> failwith "error" | _::xs -> xs in 
+  let files = ref [] in
+  let opts = ref [] in
+  let rec parse = function
+    | [] ->
+      if List.length !files = 0 then failwith "error";
+      (!opts,!files)
+    | x::xs when List.mem x options ->
+      opts := x::!opts;
+      parse xs
+    | x::xs ->
+      files := x::!files;
+      parse xs
+  in
+  parse argv
 let () =
-  let argc = Array.length Sys.argv in
-  if argc != 2 then (
-    Format.printf "Usage: ./mic [filename]\n";
-    exit (-1))
-  else
-    let fname = Sys.argv.(1) in
+  let opts,files = try
+    argparse ["-json"]
+  with _ ->
+    Format.printf "Usage: ./mic [-json] [filename]\n";
+    exit (-1)
+  in
+  files |> List.iter (fun fname ->
     let inchan = open_in fname in
     let filebuf = Lexing.from_channel inchan in
     ignore (Mic.Parser.translation_unit Mic.Lexer.token filebuf);
-    print_endline
-      (Mic.Ast.show_programi
-         (List.rev (List.mapi (fun i x -> (i, x)) (List.rev !Mic.Env.program))))
+    if List.mem "-json" opts then
+      print_endline
+        (Mic.Json.programi
+            (List.mapi (fun i x -> (i, x)) (List.rev !Mic.Env.program)))
+    else
+      print_endline
+        (Mic.Ast.show_programi
+            (List.rev (List.mapi (fun i x -> (i, x)) (List.rev !Mic.Env.program))))
+  )

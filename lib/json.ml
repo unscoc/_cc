@@ -2,6 +2,7 @@ open Ast
 
 let value = function
   | VInt x -> Printf.sprintf "[\"VInt\", %s]" x
+  | VChar x -> Printf.sprintf "[\"VChar\", \"%s\"]" x
   | VFloat x -> Printf.sprintf "[\"VFloat\", %s]" x
   | VStr x -> Printf.sprintf "[\"VStr\",%S]" x
 
@@ -49,7 +50,7 @@ let rec item = function
   | StructDef(x,ds) -> Printf.sprintf "[\"StructDef\", %S, %s]" x (decl_list ds)
   | UnionDef(x,ds) -> Printf.sprintf "[\"UnionDef\", %S, %s]" x (decl_list ds)
   | EnumDef(x,xis) -> Printf.sprintf "[\"EnumDef\", %S, %s]" x (x_int_list xis)
-  | FunctionDef(d,s) -> Printf.sprintf "[\"FunctionDef\", %S, %s]" (decl d) (stmt s)
+  | FunctionDef(d,s) -> Printf.sprintf "[\"FunctionDef\", %s, %s]" (decl d) (stmt s)
 and id i = Printf.sprintf "%d" i
 and id_list is = is |> List.map id |> String.concat ", " |> Printf.sprintf "[%s]"
 and id_list_list iss = iss |> List.map id_list |> String.concat ", " |> Printf.sprintf "[%s]"
@@ -62,10 +63,10 @@ and expr = function
   | ENone -> "[\"ENone\"]"
   | EConst(v) -> Printf.sprintf "[\"EConst\", %s]" (value v)
   | EVar(i) -> Printf.sprintf "[\"EVar\", %s]" (id i)
-  | EBinary(b,e1,e2) -> Printf.sprintf "[\"EBinary\", %s, %s, %s]" (binary b) (expr e1) (expr e2)
+  | EBinary(b,e1,e2) -> Printf.sprintf "[\"EBinary\", %S, %s, %s]" (binary b) (expr e1) (expr e2)
   | EAssign(e1,e2) -> Printf.sprintf "[\"EAssign\", %s, %s]" (expr e1) (expr e2)
-  | EUnary(u,e) -> Printf.sprintf "[\"EUnary\", %s, %s]" (unary u) (expr e)
-  | ETyUnary(u,t) -> Printf.sprintf "[\"ETyUnary\", %s, %s]" (unary u) (ty t)
+  | EUnary(u,e) -> Printf.sprintf "[\"EUnary\", %S, %s]" (unary u) (expr e)
+  | ETyUnary(u,t) -> Printf.sprintf "[\"ETyUnary\", %S, %s]" (unary u) (ty t)
   | EPostfix(e,p) -> Printf.sprintf "[\"EPostfix\", %s, %s]" (expr e) (postfix p)
   | ECond(e1,e2,e3) -> Printf.sprintf "[\"ECond\", %s, %s, %s]" (expr e1) (expr e2) (expr e3)
   | ECast(t,e) -> Printf.sprintf "[\"ECast\", %s, %s]" (ty t) (expr e)

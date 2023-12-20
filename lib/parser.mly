@@ -66,7 +66,7 @@ ident:
 
 primary_expr:
 | ID                                      { EVar (lookup_var $1) }
-| CHAR                                    { EConst (VInt $1) }
+| CHAR                                    { EConst (VChar $1) }
 | INT                                     { EConst (VInt $1) }
 | FLOAT                                   { EConst (VFloat $1) }
 | STR                                     { EConst (VStr $1) }
