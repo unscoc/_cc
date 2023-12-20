@@ -1,4 +1,4 @@
 (executable
- (public_name uscoc)
+ (public_name _cc)
  (name main)
  (libraries uscoc))
