@@ -15,6 +15,7 @@ let argparse (options:string list) =
       parse xs
   in
   parse argv
+
 let () =
   let opts,files = try
     argparse ["-json"]
